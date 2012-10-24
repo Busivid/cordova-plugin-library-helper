@@ -16,7 +16,14 @@ Add to Cordova.plist Plugins: key:libraryHelper value:LibraryHelper.
 
 Android
 -------
-TO BE IMPLEMENTED
+Add LibraryHelper.java to src/com/greenqloud/plugin/LibraryHelper.java
+
+Add LibraryHelper.js and include it from your html.
+
+Add the following to res/xml/config.xml
+
+	<plugin name="LibraryHelper" value="com.greenqloud.plugin.LibraryHelper"/>
+
 
 Usage
 =====
