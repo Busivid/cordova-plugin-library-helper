@@ -15,7 +15,7 @@
 {
     self.callbackId = [arguments objectAtIndex: 0];
     
-    NSString* path = [[arguments objectAtIndex: 0] autorelease];
+    NSString* path = [arguments objectAtIndex: 1];
     CDVPluginResult* pluginResult;
     
     if(!path){
@@ -39,9 +39,9 @@
 - (void)saveVideoToLibrary:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
     self.callbackId = [arguments objectAtIndex: 0];
-    CDVPluginResult* pluginResult;
 
-    NSString* path = [[arguments objectAtIndex:1] autorelease];
+    NSString* path = [arguments objectAtIndex:1];
+    CDVPluginResult* pluginResult;
     
     if (!path || !UIVideoAtPathIsCompatibleWithSavedPhotosAlbum( path ) )
     {
