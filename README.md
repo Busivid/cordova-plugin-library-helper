@@ -8,9 +8,11 @@ Install
 
 IOS
 ---
-Add LibraryHelper.h and LibraryHelper.m to your plugins directory
-Add LibraryHelper.js and include it from your html
-Add to Cordova.plist Plugins: key:libraryHelper value:LibraryHelper
+Add LibraryHelper.h and LibraryHelper.m to your plugins directory.
+
+Add LibraryHelper.js and include it from your html.
+
+Add to Cordova.plist Plugins: key:libraryHelper value:LibraryHelper.
 
 Android
 -------
@@ -27,4 +29,5 @@ Video
 
 
 Author: Cory Thompson (http://coryjthompson.com)
+
 License: http://www.opensource.org/licenses/mit-license.php The MIT License
