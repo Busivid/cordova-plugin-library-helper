@@ -9,12 +9,12 @@ var LibraryHelper = function() {
     
 }
 
-LibraryHelper.prototype.saveImageToLibrary = function(filePath, success, error) {
-    Cordova.exec(success, error , "LibraryHelper", "saveImageToLibrary", [filePath]);
+LibraryHelper.prototype.saveImageToLibrary = function(filePath, params) { 
+    PhoneGap.exec(params.success, params.error , "LibraryHelper", "saveImageToLibrary", [filePath]);
 };
 
-LibraryHelper.prototype.saveVideoToLibrary = function(filePath, success, error) {
-    Cordova.exec(success, error, "LibraryHelper", "saveVideoToLibrary", [filePath]);
+LibraryHelper.prototype.saveVideoToLibrary = function(filePath, params) {
+    PhoneGap.exec(params.success, params.error, "LibraryHelper", "saveVideoToLibrary", [filePath]);
 };
 
 if(!window.plugins) {

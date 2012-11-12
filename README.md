@@ -29,10 +29,10 @@ Usage
 =====
 Photo
 -----
-	windows.plugins.libraryHelper.saveImageToLibrary(fullPath, successfullCallback, errorCallback); 
+	windows.plugins.libraryHelper.saveImageToLibrary(fullPath, {success: successCallback, error: errorCallback}); 
 Video
 -----
-	windows.plugins.libraryHelper.saveVideoToLibrary(fullPath, successfullCallback, errorCallback);
+	windows.plugins.libraryHelper.saveVideoToLibrary(fullPath, {success: successCallback, error: errorCallback});
 
 
 Author: Cory Thompson (http://coryjthompson.com)
