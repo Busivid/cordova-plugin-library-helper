@@ -9,12 +9,23 @@ var LibraryHelper = function() {
     
 }
 
-LibraryHelper.prototype.saveImageToLibrary = function(filePath, params) { 
-    PhoneGap.exec(params.success, params.error , "LibraryHelper", "saveImageToLibrary", [filePath]);
+LibraryHelper.prototype.saveImageToLibrary = function(filePath, params) {
+    
+    //PhoneGap does not handle null value well
+    if(!params.albumName){
+        params.albumName = 'null';
+    }
+    
+    PhoneGap.exec(params.success, params.error , "LibraryHelper", "saveImageToLibrary", [filePath, params.albumName]);
 };
 
 LibraryHelper.prototype.saveVideoToLibrary = function(filePath, params) {
-    PhoneGap.exec(params.success, params.error, "LibraryHelper", "saveVideoToLibrary", [filePath]);
+    
+    if(!params.albumName){
+        params.albumName = 'null';
+    }
+    
+    PhoneGap.exec(params.success, params.error, "LibraryHelper", "saveVideoToLibrary", [filePath, params.albumName]);
 };
 
 if(!window.plugins) {

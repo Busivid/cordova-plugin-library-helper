@@ -8,9 +8,11 @@ Install
 
 IOS
 ---
-Add LibraryHelper.h and LibraryHelper.m to your plugins directory.
+Add LibraryHelper.h, LibraryHelper.m, ALAssetsLibrary+CustomPhotoAlbum.m and ALAssetsLibrary+CustomPhotoAlbum.m to your plugins directory.
 
 Add LibraryHelper.js and include it from your html.
+
+Add reference to AssetsLibrary.framework
 
 Add to Cordova.plist Plugins: key:libraryHelper value:LibraryHelper.
 
@@ -29,11 +31,15 @@ Usage
 =====
 Photo
 -----
-	windows.plugins.libraryHelper.saveImageToLibrary(fullPath, {success: successCallback, error: errorCallback}); 
+	windows.plugins.libraryHelper.saveImageToLibrary(fullPath, {success: successCallback, error: errorCallback, albumName: "Album Name"}); 
 Video
 -----
-	windows.plugins.libraryHelper.saveVideoToLibrary(fullPath, {success: successCallback, error: errorCallback});
+	windows.plugins.libraryHelper.saveVideoToLibrary(fullPath, {success: successCallback, error: errorCallback, albumName: "Album Name"});
 
+Change Log
+==========
+13/11/2012 - Optional Callbacks
+14/11/2012 - Added the ability to add assets to IOS albums
 
 Author: Cory Thompson (http://coryjthompson.com)
 
