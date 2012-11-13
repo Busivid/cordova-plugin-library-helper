@@ -39,6 +39,7 @@ Video
 Change Log
 ==========
 13/11/2012 - Optional Callbacks
+
 14/11/2012 - Added the ability to add assets to IOS albums
 
 Author: Cory Thompson (http://coryjthompson.com)
