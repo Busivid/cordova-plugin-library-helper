@@ -1,8 +1,5 @@
-//  LibraryHelper-phonegap
-//	https://github.com/coryjthompson/LibraryHelper-phonegap
-//
-//  Author: Cory Thompson (http://coryjthompson.com)
-//	License: http://www.opensource.org/licenses/mit-license.php The MIT License
+// LibraryHelper-cordova
+// https://github.com/coryjthompson/LibraryHelper-cordova
 var exec = require('cordova/exec');
 
 module.exports = {	

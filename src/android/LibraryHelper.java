@@ -1,3 +1,5 @@
+// LibraryHelper-cordova
+// http://github.com/coryjthompson/LibraryHelper-cordova
 package com.coryjthompson.libraryhelper;
 
 import java.io.File;

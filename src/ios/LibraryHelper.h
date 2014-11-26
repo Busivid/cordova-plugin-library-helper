@@ -1,5 +1,5 @@
-//	LibraryHelper-phonegap	
-//	http://github.com/coryjthompson/LibraryHelper-phonegap
+//	LibraryHelper-cordova	
+//	http://github.com/coryjthompson/LibraryHelper-cordova
 //
 
 #import <Foundation/Foundation.h>
