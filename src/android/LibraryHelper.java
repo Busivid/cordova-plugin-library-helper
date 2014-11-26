@@ -41,7 +41,7 @@ public class LibraryHelper extends CordovaPlugin {
 
 		try {
 
-			if (!action.equals("saveImageToLibrary") || !action.equals("saveVideoToLibrary")) {
+			if (!action.equals("saveImageToLibrary") && !action.equals("saveVideoToLibrary")) {
 				return false;
 			}
 				
