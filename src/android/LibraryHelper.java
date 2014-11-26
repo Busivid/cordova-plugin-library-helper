@@ -1,11 +1,12 @@
-/**
- * 
- */
-package com.greenqloud.plugin;
+package com.coryjthompson.libraryhelper;
 
 import java.io.File;
 
-import org.apache.cordova.api.PluginResult;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaInterface;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -14,16 +15,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import org.apache.cordova.api.Plugin;
-
-
 /**
  * Original Code pulled and altered from
  * https://github.com/philipp-at-greenqloud/pluginRefreshMedia
  * 
  * @author Philipp Veit (for GreenQloud.com)
  */
-public class LibraryHelper extends Plugin {
+public class LibraryHelper extends CordovaPlugin {
 
 	/**
 	 * Executes the request and returns PluginResult.
@@ -34,10 +32,10 @@ public class LibraryHelper extends Plugin {
 	 *            JSONArry of arguments for the plugin.
 	 * @param callbackId
 	 *            The callback id used when calling back into JavaScript.
-	 * @return A PluginResult object with a status and message.
+	 * @return A  object with a status and message.
 	 */
 	@Override
-	public PluginResult execute(String action, JSONArray args, String callbackId) {
+	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
 
 		try {
 
@@ -46,42 +44,42 @@ public class LibraryHelper extends Plugin {
 				String filePath = checkFilePath(args.getString(0));
 
 				if (filePath.equals("")) {
-					Log.e("RefreshMedia","Error: filePath is empty");
-					return new PluginResult(PluginResult.Status.ERROR);
+					callbackContext.error("Error: filePath is empty");
+					return true; // even thought results failed, the action was valid. 
 				}
 
 				File file = new File(filePath);
 
-				Intent scanIntent = new Intent(
-						Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
 				scanIntent.setData(Uri.fromFile(file));
 
 				// For more information about cordova.getContext() look here:
 				// http://simonmacdonald.blogspot.com/2012/07/phonegap-android-plugins-sometimes-we.html?showComment=1342400224273#c8740511105206086350
-				Context context = cordova.getContext();
+				Context context = this.cordova.getActivity().getApplicationContext();
 				context.sendBroadcast(scanIntent);
+				callbackContext.success();
+				return true;
+			} else {
+				return false;
 			}
-			return new PluginResult(PluginResult.Status.OK);
 		} catch (JSONException e) {
-			Log.e("RefreshMedia", "JsonException: " + e.getMessage());
-			return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
+			callbackContext.error("JsonException: " + e.getMessage());
 		} catch (Exception e) {
-			Log.e("RefreshMedia", "Error: " + e.getMessage());
-			return new PluginResult(PluginResult.Status.ERROR);
+			callbackContext.error("Error: " + e.getMessage());
 		}
-
+		return true;
 	}
 
 	private String checkFilePath(String filePath) {
-		String return_value = "";
+		String returnValue = "";
 		try {
-			return_value = filePath.replaceAll("^file://", "");
+			returnValue = filePath.replaceAll("^file://", "");
 
 		} catch (Exception e) {
 			Log.e("RefreshMedia", "Error with the filePath: " + e.getMessage());
 			return "";
 		}
 
-		return return_value;
+		return returnValue;
 	}
 }

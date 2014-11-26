@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="com.coryjthompson.libraryhelper" version="1.0">
+    <name>Library Helper</name>
+    <description>Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android</description>
+    <license>MIT</license>
+    <keywords>cordova, gallery, video, image</keywords>
+    <js-module src="www/LibraryHelper.js" name="LibraryHelper">
+        <clobbers target="LibraryHelper" />
+    </js-module>
+    <engines>
+            <engine name="cordova" version=">=3.0.0" />
+    </engines>
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="LibraryHelper">
+                <param name="ios-package" value="LibraryHelper"/>
+            </feature>
+        </config-file>
+        <header-file src="src/ios/LibraryHelper.h" />
+        <source-file src="src/ios/LibraryHelper.m" />
+        <header-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.h" />
+        <source-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.m" />
+    </platform>
+    <platform name="android">
+        <config-file target="config.xml" parent="/*">
+            <feature name="LibraryHelper">
+                <param name="android-package" value="com.coryjthompson.libraryhelper.LibraryHelper"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/LibraryHelper.java" target-dir="src/com.coryjthompson.libraryhelper/" />
+    </platform>
+</plugin>
