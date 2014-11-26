@@ -15,7 +15,7 @@ Photo
 	libraryHelper.saveImageToLibrary(onSuccess, onError, path, albumName); 
 Video
 -----
-        libraryHelper.saveVideoToLibrary(onSuccess, onError, path, albumName);                                                
+	libraryHelper.saveVideoToLibrary(onSuccess, onError, path, albumName);                                                
 
 
 Change Log
