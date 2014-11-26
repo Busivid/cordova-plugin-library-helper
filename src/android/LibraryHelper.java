@@ -39,34 +39,33 @@ public class LibraryHelper extends CordovaPlugin {
 
 		try {
 
-			if (action.equals("saveImageToLibrary") || action.equals("saveVideoToLibrary")) {
-
-				String filePath = checkFilePath(args.getString(0));
-
-				if (filePath.equals("")) {
-					callbackContext.error("Error: filePath is empty");
-					return true; // even thought results failed, the action was valid. 
-				}
-
-				File file = new File(filePath);
-
-				Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				scanIntent.setData(Uri.fromFile(file));
-
-				// For more information about cordova.getContext() look here:
-				// http://simonmacdonald.blogspot.com/2012/07/phonegap-android-plugins-sometimes-we.html?showComment=1342400224273#c8740511105206086350
-				Context context = this.cordova.getActivity().getApplicationContext();
-				context.sendBroadcast(scanIntent);
-				callbackContext.success();
-				return true;
-			} else {
+			if (!action.equals("saveImageToLibrary") || !action.equals("saveVideoToLibrary")) {
 				return false;
 			}
+				
+			String filePath = checkFilePath(args.getString(0));
+
+			if (filePath.equals("")) {
+				callbackContext.error("Error: filePath is empty");
+				return true; // even thought results failed, the action was valid. 
+			}
+
+			File file = new File(filePath);
+
+			Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			scanIntent.setData(Uri.fromFile(file));
+
+			// For more information about cordova.getContext() look here:
+			// http://simonmacdonald.blogspot.com/2012/07/phonegap-android-plugins-sometimes-we.html?showComment=1342400224273#c8740511105206086350
+			Context context = this.cordova.getActivity().getApplicationContext();
+			context.sendBroadcast(scanIntent);
+			callbackContext.success();
 		} catch (JSONException e) {
 			callbackContext.error("JsonException: " + e.getMessage());
 		} catch (Exception e) {
 			callbackContext.error("Error: " + e.getMessage());
 		}
+
 		return true;
 	}
 
