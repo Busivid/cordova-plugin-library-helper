@@ -69,4 +69,69 @@
         [self assetSavedToLibrary:error callbackId:command.callbackId];
     }];
 }
+
+//Many thanks to @jbavari
+//Parts of this code taken from:
+//https://github.com/jbavari/cordova-plugin-video-editor/
+- (void)getVideoInfo:(CDVInvokedUrlCommand *)command {
+    NSString* srcVideoPath = [command.arguments objectAtIndex: 0];
+    NSURL *srcVideoUrl;
+    
+    CDVPluginResult* pluginResult = nil;
+    if (!srcVideoPath) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"Path not a valid video file"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+    
+    if ([srcVideoPath rangeOfString:@"://"].location == NSNotFound)
+    {
+        srcVideoUrl = [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:srcVideoPath] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }
+    else
+    {
+        srcVideoUrl = [NSURL URLWithString:[srcVideoPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }
+    
+    AVURLAsset *srcAsset = [AVURLAsset assetWithURL: srcVideoUrl];
+    
+    //Grab the duration
+    Float64 duration = CMTimeGetSeconds(srcAsset.duration);
+    
+    //Grab the thumbnail (thanks http://stackoverflow.com/questions/14742262/ios-get-video-duration-and-thumbnails-without-playing-video)
+    AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:srcAsset];
+    
+    //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
+    int frameTimeStart = (duration < 3)
+        ? (duration/2)
+        : 3;
+    
+    int frameLocation = 1;
+    
+    //Grab the frame
+    CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
+    
+    // Get output path
+    NSString *dstFileName = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+    NSString *appDocumentPath = [paths objectAtIndex:0];
+    
+    NSString *thumbnailPath = [appDocumentPath stringByAppendingPathComponent:dstFileName];
+    
+    // Save image
+    NSString *outputFilePath = [thumbnailPath stringByAppendingString:@".jpg"];
+    UIImage *uiImage = [UIImage imageWithCGImage:frameRef];
+    NSData *jpgData = UIImageJPEGRepresentation(uiImage, 0.9f);
+    [jpgData writeToFile:outputFilePath atomically:YES];
+    
+    
+    NSDictionary *results = @{
+                           @"duration" : [NSNumber numberWithLong: duration],
+                           @"thumbnail" : outputFilePath
+    };
+    
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+}
 @end
