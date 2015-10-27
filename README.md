@@ -1,7 +1,7 @@
 LibraryHelper-cordova
 ======================
 
-Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android
+Library Helper is a cordova plugin to help insert videos or images into the native gallery. Also can get duration and thumbnails from a video path. Supports IOS and Android
 
 Install
 =======
@@ -10,16 +10,26 @@ Install
 
 Usage
 =====
-Photo
------
-	libraryHelper.saveImageToLibrary(onSuccess, onError, path, albumName); 
-Video
------
-	libraryHelper.saveVideoToLibrary(onSuccess, onError, path, albumName);                                                
+Save Photo to Camera Roll
+-------------------------
+	LibraryHelper.saveImageToLibrary(onSuccess, onError, path, albumName); 
+Save Video to Camera Roll
+-------------------------
+	LibraryHelper.saveVideoToLibrary(onSuccess, onError, path, albumName);                                               
+Get Thumbnail and Duration
+---------------------------
+        LibraryHelper.getVideoInfo(onSuccess, onError, path);
+        
+        function onSuccess(results) {
+            console.log("Duration: " + results.duration); 
+            console.log("Thumbnail path on disk: " + results.thumbnail);
+        }
 
 
 Change Log
 ==========
+22/10/2015 - Added the ability to get video thumbnails and duration.
+
 26/11/2014 - Converted plugin to use cordova 3.x+
 
 13/11/2012 - Optional Callbacks
