@@ -124,9 +124,16 @@
     NSData *jpgData = UIImageJPEGRepresentation(uiImage, 0.9f);
     [jpgData writeToFile:outputFilePath atomically:YES];
     
+    //Get Filesize
+    NSNumber *fileSize = nil;
+    [srcVideoUrl getResourceValue:&fileSize
+                       forKey:NSURLFileSizeKey
+                        error:nil];
+    
     
     NSDictionary *results = @{
                            @"duration" : [NSNumber numberWithLong: duration],
+                           @"fileSize": fileSize,
                            @"thumbnail" : outputFilePath
     };
     
