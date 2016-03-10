@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-        id="com.coryjthompson.libraryhelper" version="1.0">
+        id="cordova-library-helper" version="1.0">
     <name>Library Helper</name>
     <description>Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android</description>
     <license>MIT</license>
