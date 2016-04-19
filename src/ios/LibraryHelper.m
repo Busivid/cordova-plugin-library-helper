@@ -15,7 +15,7 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
-- (void)saveImagetoLibrary:(CDVInvokedUrlCommand *)command {
+- (void)saveImageToLibrary:(CDVInvokedUrlCommand *)command {
 	NSString* path = [command.arguments objectAtIndex: 0];
 	NSString* albumName = [command.arguments objectAtIndex: 1];
 

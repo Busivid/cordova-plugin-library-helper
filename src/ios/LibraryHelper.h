@@ -10,7 +10,7 @@
 
 @interface LibraryHelper : CDVPlugin
 
-- (void)saveImagetoLibrary:(CDVInvokedUrlCommand *)command;
+- (void)saveImageToLibrary:(CDVInvokedUrlCommand *)command;
 - (void)saveVideoToLibrary:(CDVInvokedUrlCommand *)command;
 - (void)getVideoInfo:(CDVInvokedUrlCommand *)command;
 @end
