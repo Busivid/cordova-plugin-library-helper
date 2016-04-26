@@ -6,7 +6,7 @@ Library Helper is a cordova plugin to help insert videos or images into the nati
 Install
 =======
 
-	cordova plugin add https://github.com/coryjthompson/cordova-library-helper.git
+	cordova plugin add cordova-library-helper
 
 Usage
 =====
