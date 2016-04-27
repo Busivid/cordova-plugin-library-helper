@@ -28,6 +28,8 @@ Get Thumbnail and Duration
 
 Change Log
 ==========
+27/04/2016 - Added the ability to get video thumbnails and duration for Android.
+
 22/10/2015 - Added the ability to get video thumbnails and duration.
 
 26/11/2014 - Converted plugin to use cordova 3.x+
