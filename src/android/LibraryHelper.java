@@ -125,6 +125,9 @@ public class LibraryHelper extends CordovaPlugin {
 		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 		retriever.setDataSource(context, Uri.fromFile(file));
 		String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+		if(time == null)
+			return Long.parseLong(0);
+		
 		return Long.parseLong(time)/1000;
 	}
 
