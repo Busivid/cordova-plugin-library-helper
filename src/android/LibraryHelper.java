@@ -95,8 +95,7 @@ public class LibraryHelper extends CordovaPlugin {
 	private String checkFilePath(String filePath) {
 		String returnValue = "";
 		try {
-			returnValue = filePath.replaceAll("^file://", "");
-
+			returnValue = filePath.replaceAll("^file://", "").replaceAll("^file:", "");
 		} catch (Exception e) {
 			Log.e("RefreshMedia", "Error with the filePath: " + e.getMessage());
 			return "";
