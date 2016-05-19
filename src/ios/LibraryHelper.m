@@ -134,7 +134,7 @@
     
     
     NSDictionary *results = @{
-                           @"duration" : [NSNumber numberWithLong: duration],
+                           @"duration" : [NSNumber numberWithLong: ceil(duration)],
                            @"fileSize": fileSize,
                            @"thumbnail" : outputFilePath
     };
