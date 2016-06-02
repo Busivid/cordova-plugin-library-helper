@@ -33,6 +33,7 @@ import android.util.Log;
  */
 public class LibraryHelper extends CordovaPlugin {
 
+
 	/**
 	 * Executes the request and returns PluginResult.
 	 * 
@@ -122,13 +123,17 @@ public class LibraryHelper extends CordovaPlugin {
 		Context context = this.cordova.getActivity().getApplicationContext();
 		File file = new File(filePath);
 
-		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-		retriever.setDataSource(context, Uri.fromFile(file));
-		String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-		if(time == null)
-			return Long.parseLong("0");
+		try {
+			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+			retriever.setDataSource(context, Uri.fromFile(file));
+			String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+			if(time == null)
+				return Long.parseLong("0");
 		
-		return Long.parseLong(time)/1000;
+			return Long.parseLong(time)/1000;
+		} catch (Exception e) {
+			return Long.parseLong("0");
+		}
 	}
 
 	private String getThumbnailPath(String filePath) {
@@ -139,7 +144,12 @@ public class LibraryHelper extends CordovaPlugin {
 			File outputDir = context.getCacheDir(); // context being the Activity pointer
 			File outputFile = File.createTempFile(randomFilePrefix, ".png", outputDir);
 			out = new FileOutputStream(outputFile);
-			Bitmap thumb = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
+			Bitmap thumb;
+			if(isImage(filePath)) {
+				thumb = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filePath), 640, 360, false);
+			} else {
+				thumb = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
+			}
 			thumb.compress(Bitmap.CompressFormat.PNG, 100, out);// PNG is a loseless format, compress factor 100 is ignored.
 			return outputFile.getAbsolutePath();
 		} catch (Exception e) {
@@ -154,4 +164,10 @@ public class LibraryHelper extends CordovaPlugin {
 			}
 		}
 	}
+
+	private static boolean isImage(String filePath) {
+		//cbf doing this correctly
+		return filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".gif");
+	}
 }
+
