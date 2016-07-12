@@ -70,6 +70,26 @@
     }];
 }
 
+- (UIImage *)scaleImageToSize:(UIImage*)image maxSize:(CGSize)newSize {
+    
+    CGRect scaledImageRect = CGRectZero;
+    
+    CGFloat aspectWidth = newSize.width / image.size.width;
+    CGFloat aspectHeight = newSize.height / image.size.height;
+    CGFloat aspectRatio = MIN ( aspectWidth, aspectHeight );
+    
+    scaledImageRect.size.width = image.size.width * aspectRatio;
+    scaledImageRect.size.height = image.size.height * aspectRatio;
+    
+    UIGraphicsBeginImageContextWithOptions(scaledImageRect.size, NO, 0 );
+    [image drawInRect:scaledImageRect];
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scaledImage;
+    
+}
+
 //Many thanks to @jbavari
 //Parts of this code taken from:
 //https://github.com/jbavari/cordova-plugin-video-editor/
@@ -105,13 +125,20 @@
 
     //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
     int frameTimeStart = (duration < 3)
-        ? (duration/2)
+        ? ceil(duration/2)
         : 3;
     
-    int frameLocation = 1;
+    UIImage *thumbnailImage;
+    if(frameTimeStart == 0) { //then we are dealing with an image.
+        UIImage *originalImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:srcVideoUrl]];
+        thumbnailImage = [self scaleImageToSize: originalImage maxSize: generator.maximumSize];
+    } else {
+        int frameLocation = 1;
     
-    //Grab the frame
-    CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
+        //Grab the frame
+        CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
+        thumbnailImage = [UIImage imageWithCGImage:frameRef];
+    }
     
     // Get output path
     NSString *dstFileName = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -122,8 +149,7 @@
     
     // Save image
     NSString *outputFilePath = [thumbnailPath stringByAppendingString:@".jpg"];
-    UIImage *uiImage = [UIImage imageWithCGImage:frameRef];
-    NSData *jpgData = UIImageJPEGRepresentation(uiImage, 0.9f);
+    NSData *jpgData = UIImageJPEGRepresentation(thumbnailImage, 0.9f);
     [jpgData writeToFile:outputFilePath atomically:YES];
     
     //Get Filesize
