@@ -121,7 +121,7 @@
     //Grab the thumbnail (thanks http://stackoverflow.com/questions/14742262/ios-get-video-duration-and-thumbnails-without-playing-video)
     AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:srcAsset];
     generator.appliesPreferredTrackTransform = true;
-    generator.maximumSize = CGSizeMake(184, 104);
+    generator.maximumSize = CGSizeMake(320, 180);
 
     //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
     int frameTimeStart = (duration < 3)
