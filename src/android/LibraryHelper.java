@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -144,12 +146,47 @@ public class LibraryHelper extends CordovaPlugin {
 			File outputDir = context.getCacheDir(); // context being the Activity pointer
 			File outputFile = File.createTempFile(randomFilePrefix, ".png", outputDir);
 			out = new FileOutputStream(outputFile);
+
 			Bitmap thumb;
 			if(isImage(filePath)) {
-				thumb = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filePath), 640, 360, false);
+				Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+
+				ExifInterface exif = new ExifInterface(filePath);
+				int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+				int rotate = 0;
+				switch (orientation) {
+					case ExifInterface.ORIENTATION_ROTATE_270:
+						rotate = -90;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+						rotate = 180;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_90:
+						rotate = 90;
+						break;
+				}
+
+				if (rotate != 0) {
+					//rotate bitmap
+					Matrix matrix = new Matrix();
+					matrix.setRotate(rotate);
+					bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+				}
+
+				double aspectHeight = (double)180 / (double)bitmap.getHeight();
+				double aspectWidth = (double)320 / (double)bitmap.getWidth();
+				double aspectRatio = (aspectWidth > aspectHeight) // get min of aspectWidth and aspectHeight
+						? aspectHeight
+						: aspectWidth;
+
+				int newHeight = (int)Math.round(bitmap.getHeight() * aspectRatio);
+				int newWidth = (int)Math.round(bitmap.getWidth() * aspectRatio);
+
+				thumb = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
 			} else {
 				thumb = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
 			}
+
 			thumb.compress(Bitmap.CompressFormat.PNG, 100, out);// PNG is a loseless format, compress factor 100 is ignored.
 			return outputFile.getAbsolutePath();
 		} catch (Exception e) {
@@ -166,7 +203,6 @@ public class LibraryHelper extends CordovaPlugin {
 	}
 
 	private static boolean isImage(String filePath) {
-		//cbf doing this correctly
 		return filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".gif");
 	}
 }
