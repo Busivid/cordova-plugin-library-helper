@@ -79,8 +79,7 @@
     scaledImageRect.size.width = image.size.width * aspectRatio;
     scaledImageRect.size.height = image.size.height * aspectRatio;
     
-//    UIGraphicsBeginImageContextWithOptions(scaledImageRect.size, NO, 0 );
-    UIGraphicsBeginImageContext(CGSizeMake(scaledImageRect.size.width, scaledImageRect.size.height));
+    UIGraphicsBeginImageContextWithOptions(scaledImageRect.size, NO, 0 );
     [image drawInRect:scaledImageRect];
     
     UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -94,7 +93,6 @@
 //https://github.com/jbavari/cordova-plugin-video-editor/
 - (void)getVideoInfo:(CDVInvokedUrlCommand *)command {
     NSString* srcVideoPath = [command.arguments objectAtIndex: 0];
-    NSURL *srcVideoUrl;
     
     CDVPluginResult* pluginResult = nil;
     if (!srcVideoPath) {
@@ -103,71 +101,60 @@
         return;
     }
     
-    if ([srcVideoPath rangeOfString:@"://"].location == NSNotFound)
-    {
-        srcVideoUrl = [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:srcVideoPath] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    else
-    {
-        srcVideoUrl = [NSURL URLWithString:[srcVideoPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    
-    AVURLAsset *srcAsset = [AVURLAsset assetWithURL: srcVideoUrl];
-    
-    //Grab the duration
-    Float64 duration = CMTimeGetSeconds(srcAsset.duration);
-    
-    //Grab the thumbnail (thanks http://stackoverflow.com/questions/14742262/ios-get-video-duration-and-thumbnails-without-playing-video)
-    AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:srcAsset];
-    generator.appliesPreferredTrackTransform = true;
-    generator.maximumSize = CGSizeMake(320, 180);
+    NSURL *srcVideoUrl = [srcVideoPath rangeOfString:@"://"].location == NSNotFound
+        ? [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:srcVideoPath] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]
+        : [NSURL URLWithString:[srcVideoPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
-    UIImage *thumbnailImage;
-    if(duration == 0) { //then we are dealing with an image.
-        UIImage *originalImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:srcVideoUrl]];
-        originalImage = [self rotateImage:(originalImage)];
-        thumbnailImage = [self scaleImageToSize: originalImage maxSize: generator.maximumSize];
-    } else {
-        int frameLocation = 1;
-        
-        //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
-        int frameTimeStart = (duration < 3)
-            ? ceil(duration/2)
-            : 3;
-        
-        //Grab the frame
-        CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
-        thumbnailImage = [UIImage imageWithCGImage:frameRef];
-    }
+    AVURLAsset *srcAsset = [AVURLAsset assetWithURL: srcVideoUrl];
+    NSString *tmpFileName = [[NSProcessInfo processInfo] globallyUniqueString];
     
-    // Get output path
-    NSString *dstFileName = [[NSProcessInfo processInfo] globallyUniqueString];
+    // Get App Document path
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
     NSString *appDocumentPath = [paths objectAtIndex:0];
     
-    NSString *thumbnailPath = [appDocumentPath stringByAppendingPathComponent:dstFileName];
+    // Get Duration
+    Float64 duration = CMTimeGetSeconds(srcAsset.duration);
     
-    // Save image
-    NSString *outputFilePath = [thumbnailPath stringByAppendingString:@".jpg"];
-    NSData *jpgData = UIImageJPEGRepresentation(thumbnailImage, 0.96f);
-    [jpgData writeToFile:outputFilePath atomically:YES];
-    
-    //Get Filesize
+    // Get Filesize
     NSNumber *fileSize = nil;
-    [srcVideoUrl getResourceValue:&fileSize
-                       forKey:NSURLFileSizeKey
-                        error:nil];
+    [srcVideoUrl getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
     
+    // Generate Image
+    UIImage *image;
+    NSString *imagePath;
+    if (duration == 0) {
+        image = [UIImage imageWithData:[NSData dataWithContentsOfURL:srcVideoUrl]];
+        image = [self rotateImage:image];
+        
+        imagePath = srcVideoPath;
+    } else {
+        AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:srcAsset];
+        generator.appliesPreferredTrackTransform = true;
+        
+        int frameLocation = 1;
+        int frameTimeStart = MIN(duration, 3);
+        CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
+        image = [UIImage imageWithCGImage:frameRef];
+        
+        // Optionally Save Image
+        imagePath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@".jpg"];
+        [UIImageJPEGRepresentation(image, 0.96f) writeToFile:imagePath atomically:YES];
+    }
+    
+    // Generate Thumbnail
+    UIImage *thumbnail = [self scaleImageToSize: image maxSize: CGSizeMake(320, 180)];
+    NSString *thumbnailPath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@"_thumb.jpg"];
+    [UIImageJPEGRepresentation(thumbnail, 0.96f) writeToFile:thumbnailPath atomically:YES];
     
     NSDictionary *results = @{
-                           @"duration" : [NSNumber numberWithLong: ceil(duration)],
-                           @"fileSize": fileSize,
-                           @"thumbnail" : outputFilePath
+        @"duration" : [NSNumber numberWithLong: ceil(duration)],
+        @"fileSize": fileSize,
+        @"image": imagePath,
+        @"thumbnail" : thumbnailPath
     };
     
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
 }
 
 - (UIImage *)rotateImage:(UIImage *) image {
