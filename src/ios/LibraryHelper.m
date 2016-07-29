@@ -71,23 +71,22 @@
 }
 
 - (UIImage *)scaleImageToSize:(UIImage*)image maxSize:(CGSize)newSize {
-    
-    CGRect scaledImageRect = CGRectZero;
-    
     CGFloat aspectWidth = newSize.width / image.size.width;
     CGFloat aspectHeight = newSize.height / image.size.height;
     CGFloat aspectRatio = MIN ( aspectWidth, aspectHeight );
     
+    CGRect scaledImageRect = CGRectZero;
     scaledImageRect.size.width = image.size.width * aspectRatio;
     scaledImageRect.size.height = image.size.height * aspectRatio;
     
-    UIGraphicsBeginImageContextWithOptions(scaledImageRect.size, NO, 0 );
+//    UIGraphicsBeginImageContextWithOptions(scaledImageRect.size, NO, 0 );
+    UIGraphicsBeginImageContext(CGSizeMake(scaledImageRect.size.width, scaledImageRect.size.height));
     [image drawInRect:scaledImageRect];
+    
     UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
     return scaledImage;
-    
 }
 
 //Many thanks to @jbavari
@@ -123,18 +122,19 @@
     generator.appliesPreferredTrackTransform = true;
     generator.maximumSize = CGSizeMake(320, 180);
 
-    //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
-    int frameTimeStart = (duration < 3)
-        ? ceil(duration/2)
-        : 3;
-    
     UIImage *thumbnailImage;
-    if(frameTimeStart == 0) { //then we are dealing with an image.
+    if(duration == 0) { //then we are dealing with an image.
         UIImage *originalImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:srcVideoUrl]];
+        originalImage = [self rotateImage:(originalImage)];
         thumbnailImage = [self scaleImageToSize: originalImage maxSize: generator.maximumSize];
     } else {
         int frameLocation = 1;
-    
+        
+        //Get the 1st frame 3 seconds in or half way if the clip is less the 3 seconds
+        int frameTimeStart = (duration < 3)
+            ? ceil(duration/2)
+            : 3;
+        
         //Grab the frame
         CGImageRef frameRef = [generator copyCGImageAtTime:CMTimeMake(frameTimeStart,frameLocation) actualTime:nil error:nil];
         thumbnailImage = [UIImage imageWithCGImage:frameRef];
@@ -149,7 +149,7 @@
     
     // Save image
     NSString *outputFilePath = [thumbnailPath stringByAppendingString:@".jpg"];
-    NSData *jpgData = UIImageJPEGRepresentation(thumbnailImage, 0.9f);
+    NSData *jpgData = UIImageJPEGRepresentation(thumbnailImage, 0.96f);
     [jpgData writeToFile:outputFilePath atomically:YES];
     
     //Get Filesize
@@ -168,5 +168,96 @@
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     
+}
+
+- (UIImage *)rotateImage:(UIImage *) image {
+    CGImageRef imgRef = image.CGImage;
+    CGFloat width = CGImageGetWidth(imgRef);
+    CGFloat height = CGImageGetHeight(imgRef);
+    
+    CGRect bounds = CGRectMake(0, 0, width, height);
+    CGFloat scaleRatio = bounds.size.width / width;
+    
+    CGFloat boundHeight;
+    CGSize imageSize = CGSizeMake(width, height);
+    UIImageOrientation orient = image.imageOrientation;
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    
+    switch(orient) {
+        case UIImageOrientationUp: //EXIF = 1
+            transform = CGAffineTransformIdentity;
+            break;
+            
+        case UIImageOrientationUpMirrored: //EXIF = 2
+            transform = CGAffineTransformMakeTranslation(imageSize.width, 0.0);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            break;
+            
+        case UIImageOrientationDown: //EXIF = 3
+            transform = CGAffineTransformMakeTranslation(imageSize.width, imageSize.height);
+            transform = CGAffineTransformRotate(transform, M_PI);
+            break;
+            
+        case UIImageOrientationDownMirrored: //EXIF = 4
+            transform = CGAffineTransformMakeTranslation(0.0, imageSize.height);
+            transform = CGAffineTransformScale(transform, 1.0, -1.0);
+            break;
+            
+        case UIImageOrientationLeftMirrored: //EXIF = 5
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(imageSize.height, imageSize.width);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationLeft: //EXIF = 6
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(0.0, imageSize.width);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationRightMirrored: //EXIF = 7
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationRight: //EXIF = 8
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(imageSize.height, 0.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+            
+        default:
+            [NSException raise:NSInternalInconsistencyException format:@"Invalid image orientation"];
+    }
+    
+    UIGraphicsBeginImageContext(bounds.size);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    if (orient == UIImageOrientationRight || orient == UIImageOrientationLeft) {
+        CGContextScaleCTM(context, -scaleRatio, scaleRatio);
+        CGContextTranslateCTM(context, -height, 0);
+    } else {
+        CGContextScaleCTM(context, scaleRatio, -scaleRatio);
+        CGContextTranslateCTM(context, 0, -height);
+    }
+    
+    CGContextConcatCTM(context, transform);
+    
+    CGContextDrawImage(UIGraphicsGetCurrentContext(), CGRectMake(0, 0, width, height), imgRef);
+    UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return imageCopy;
 }
 @end
