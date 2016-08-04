@@ -128,8 +128,10 @@ public class LibraryHelper extends CordovaPlugin {
 		try {
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 			retriever.setDataSource(context, Uri.fromFile(file));
+			String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
 			String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-			if(time == null)
+
+			if(time == null || !hasVideo.equals("yes"))
 				return Long.parseLong("0");
 		
 			return Long.parseLong(time)/1000;
