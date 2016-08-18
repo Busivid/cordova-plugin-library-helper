@@ -84,6 +84,23 @@ public class LibraryHelper extends CordovaPlugin {
 				return true;
 			}
 
+			if(action.equals("compressImage")) {
+				String filePath = checkFilePath(args.getString(0));
+				if (filePath.equals("")) {
+					callbackContext.error("Error: filePath is empty");
+					return true; //even though results failed, the action was valid.
+				}
+
+				int jpegCompression = args.optInt(1) > 0
+						? args.optInt(1)
+						: 60;
+
+				JSONObject results = new JSONObject();
+				results.put("compressedImage", compressImage(filePath, jpegCompression));
+				callbackContext.success(results);
+				return true;
+			}
+
 			return false; //if we got this far, the action wasn't found.
 
 		} catch (JSONException e) {
@@ -141,12 +158,9 @@ public class LibraryHelper extends CordovaPlugin {
 	}
 
 	private String getThumbnailPath(String filePath) {
-		Context context = this.cordova.getActivity().getApplicationContext();
 		FileOutputStream out = null;
 		try {
-			String randomFilePrefix = UUID.randomUUID().toString();
-			File outputDir = context.getCacheDir(); // context being the Activity pointer
-			File outputFile = File.createTempFile(randomFilePrefix, ".png", outputDir);
+			File outputFile = getWritableFile("png");
 			out = new FileOutputStream(outputFile);
 
 			Bitmap thumb;
@@ -202,6 +216,39 @@ public class LibraryHelper extends CordovaPlugin {
 				}
 			}
 		}
+	}
+
+	private String compressImage(String filePath, int jpegCompression) {
+		FileOutputStream out = null;
+
+		try {
+			File outputFile = getWritableFile("jpg");
+			out = new FileOutputStream(outputFile);
+
+			Bitmap inputImage = BitmapFactory.decodeFile(filePath);
+			inputImage.compress(Bitmap.CompressFormat.JPEG, jpegCompression, out);
+			return outputFile.getAbsolutePath();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private File getWritableFile(String ext) {
+		int i = 1;
+		File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
+
+		// Create the data directory if it doesn't exist
+		dataDirectory.mkdirs();
+		String dataPath = dataDirectory.getAbsolutePath();
+		File file;
+		do {
+			file = new File(dataPath + String.format("/file_%05d." + ext, i));
+			i++;
+		} while (file.exists());
+
+		return file;
 	}
 
 	private static boolean isImage(String filePath) {

@@ -70,6 +70,29 @@
     }];
 }
 
+- (void)compressImage:(CDVInvokedUrlCommand *)command {
+    NSString* path = [command.arguments objectAtIndex: 0];
+    int jpegCompression = ([command.arguments objectAtIndex:1]) ? [[command.arguments objectAtIndex:1] intValue] : 60;
+    
+    // Get App Document path
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+    NSString *appDocumentPath = [paths objectAtIndex:0];
+    
+    NSString *tmpFileName = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *outputImagePath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@".jpg"];
+    
+    UIImage *image = [[UIImage alloc]initWithContentsOfFile:path];
+    [UIImageJPEGRepresentation(image, (float)jpegCompression/100.0f) writeToFile:outputImagePath atomically:YES];
+    NSDictionary *results = @{
+                              @"compressedImage" : outputImagePath
+                              };
+    
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+    
+
+}
 - (UIImage *)scaleImageToSize:(UIImage*)image maxSize:(CGSize)newSize {
     CGFloat aspectWidth = newSize.width / image.size.width;
     CGFloat aspectHeight = newSize.height / image.size.height;

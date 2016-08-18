@@ -26,6 +26,15 @@ Get Thumbnail and Duration
         }
 
 
+Compress Image
+---------------
+	LibraryHelper.compressImage(onSuccess, onError, path, compressionLevel); 
+
+       function onSuccess(results) {
+           console.log(results.compressedImage);
+       }
+
+
 Change Log
 ==========
 27/04/2016 - Added the ability to get video thumbnails and duration for Android.

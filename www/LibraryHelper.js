@@ -3,6 +3,9 @@
 var exec = require('cordova/exec');
 
 module.exports = {	
+        compressImage: function (onSuccess, onError, path, jpegCompression) {
+                exec(onSuccess, onError, 'LibraryHelper', 'compressImage', [path, jpegCompression]);
+        },
 	getVideoInfo: function(onSuccess, onError, path) {
 		exec(onSuccess, onError, 'LibraryHelper', 'getVideoInfo', [path]);
 	},
