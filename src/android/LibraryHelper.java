@@ -252,6 +252,7 @@ public class LibraryHelper extends CordovaPlugin {
 	}
 
 	private static boolean isImage(String filePath) {
+		filePath = filePath.toLowerCase();
 		return filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".gif");
 	}
 }
