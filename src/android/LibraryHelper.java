@@ -254,6 +254,8 @@ public class LibraryHelper extends CordovaPlugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		} catch (OutOfMemoryError e) {
+			return null;
 		}
 	}
 
