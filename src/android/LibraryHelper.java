@@ -165,7 +165,9 @@ public class LibraryHelper extends CordovaPlugin {
 
 			Bitmap thumb;
 			if(isImage(filePath)) {
-				Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+				BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+				bitmapOptions.inJustDecodeBounds = true;
+				BitmapFactory.decodeFile(filePath, bitmapOptions);
 
 				ExifInterface exif = new ExifInterface(filePath);
 				int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
@@ -182,21 +184,41 @@ public class LibraryHelper extends CordovaPlugin {
 						break;
 				}
 
+				int height = -1;
+				int width = -1;
+
+				if(orientation == -90 || orientation == 90) {
+					height = bitmapOptions.outWidth;
+					width = bitmapOptions.outHeight;
+				} else {
+					height = bitmapOptions.outHeight;
+					width = bitmapOptions.outWidth;
+				}
+
+				double aspectHeight = (double)180 / (double)height;
+				double aspectWidth = (double)320 / (double)width;
+				double aspectRatio = (aspectWidth > aspectHeight) // get min of aspectWidth and aspectHeight
+						? aspectHeight
+						: aspectWidth;
+
+				int newHeight = (int)Math.round(height * aspectRatio);
+				int newWidth = (int)Math.round(width * aspectRatio);
+				int sampleSize = (int)Math.round(1 / aspectRatio);
+				if(sampleSize%2 != 0) {
+					sampleSize -= 1;
+				}
+
+				bitmapOptions = new BitmapFactory.Options();
+				bitmapOptions.inJustDecodeBounds = false;
+				bitmapOptions.inSampleSize =sampleSize;
+				Bitmap bitmap = BitmapFactory.decodeFile(filePath, bitmapOptions);
+
 				if (rotate != 0) {
 					//rotate bitmap
 					Matrix matrix = new Matrix();
 					matrix.setRotate(rotate);
 					bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
 				}
-
-				double aspectHeight = (double)180 / (double)bitmap.getHeight();
-				double aspectWidth = (double)320 / (double)bitmap.getWidth();
-				double aspectRatio = (aspectWidth > aspectHeight) // get min of aspectWidth and aspectHeight
-						? aspectHeight
-						: aspectWidth;
-
-				int newHeight = (int)Math.round(bitmap.getHeight() * aspectRatio);
-				int newWidth = (int)Math.round(bitmap.getWidth() * aspectRatio);
 
 				thumb = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
 			} else {
@@ -256,4 +278,3 @@ public class LibraryHelper extends CordovaPlugin {
 		return filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".gif");
 	}
 }
-
