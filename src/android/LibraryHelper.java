@@ -187,7 +187,7 @@ public class LibraryHelper extends CordovaPlugin {
 				int height = -1;
 				int width = -1;
 
-				if(orientation == -90 || orientation == 90) {
+				if(rotate == -90 || rotate == 90) {
 					height = bitmapOptions.outWidth;
 					width = bitmapOptions.outHeight;
 				} else {
