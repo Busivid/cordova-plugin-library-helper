@@ -4,6 +4,7 @@ package com.coryjthompson.libraryhelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 import org.apache.cordova.CordovaWebView;
@@ -80,6 +81,7 @@ public class LibraryHelper extends CordovaPlugin {
 				JSONObject results = new JSONObject();
 				results.put("duration", getVideoDurationInSeconds(filePath));
 				results.put("thumbnail", getThumbnailPath(filePath));
+				results.put("rotation", getExifRotation(filePath));
 				callbackContext.success(results);
 				return true;
 			}
@@ -169,20 +171,7 @@ public class LibraryHelper extends CordovaPlugin {
 				bitmapOptions.inJustDecodeBounds = true;
 				BitmapFactory.decodeFile(filePath, bitmapOptions);
 
-				ExifInterface exif = new ExifInterface(filePath);
-				int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-				int rotate = 0;
-				switch (orientation) {
-					case ExifInterface.ORIENTATION_ROTATE_270:
-						rotate = -90;
-						break;
-					case ExifInterface.ORIENTATION_ROTATE_180:
-						rotate = 180;
-						break;
-					case ExifInterface.ORIENTATION_ROTATE_90:
-						rotate = 90;
-						break;
-				}
+				int rotate = getExifRotation(filePath);
 
 				int height = -1;
 				int width = -1;
@@ -238,6 +227,24 @@ public class LibraryHelper extends CordovaPlugin {
 				}
 			}
 		}
+	}
+
+	private int getExifRotation(String filePath) throws IOException {
+		ExifInterface exif = new ExifInterface(filePath);
+		int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+		int rotate = 0;
+		switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotate = -90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotate = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotate = 90;
+                break;
+        }
+		return rotate;
 	}
 
 	private String compressImage(String filePath, int jpegCompression) {
