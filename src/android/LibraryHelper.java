@@ -255,6 +255,15 @@ public class LibraryHelper extends CordovaPlugin {
 			out = new FileOutputStream(outputFile);
 
 			Bitmap inputImage = BitmapFactory.decodeFile(filePath);
+			int rotate = getExifRotation(filePath);
+
+			if (rotate != 0) {
+				//rotate bitmap
+				Matrix matrix = new Matrix();
+				matrix.setRotate(rotate);
+				inputImage = Bitmap.createBitmap(inputImage, 0, 0, inputImage.getWidth(), inputImage.getHeight(), matrix, false);
+			}
+
 			inputImage.compress(Bitmap.CompressFormat.JPEG, jpegCompression, out);
 			return outputFile.getAbsolutePath();
 
