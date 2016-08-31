@@ -176,7 +176,7 @@ public class LibraryHelper extends CordovaPlugin {
 				int height = -1;
 				int width = -1;
 
-				if(rotate == -90 || rotate == 90) {
+				if(rotate == 90 || rotate == 270) {
 					height = bitmapOptions.outWidth;
 					width = bitmapOptions.outHeight;
 				} else {
@@ -235,7 +235,7 @@ public class LibraryHelper extends CordovaPlugin {
 		int rotate = 0;
 		switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_270:
-                rotate = -90;
+                rotate = 270;
                 break;
             case ExifInterface.ORIENTATION_ROTATE_180:
                 rotate = 180;
