@@ -282,21 +282,25 @@ public class LibraryHelper extends CordovaPlugin {
 		}
 	}
 
-	private File getWritableFile(String ext) {
-		int i = 1;
-		File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
-
-		// Create the data directory if it doesn't exist
-		dataDirectory.mkdirs();
-		String dataPath = dataDirectory.getAbsolutePath();
-		File file;
-		do {
-			file = new File(dataPath + String.format("/file_%05d." + ext, i));
-			i++;
-		} while (file.exists());
-
-		return file;
-	}
+	private File getWritableFile(String ext)
+	{
+	    	int i = 1;
+	        String state = Environment.getExternalStorageState();
+	        File dataDirectory = Environment.MEDIA_MOUNTED.equals(state)
+	            ? cordova.getActivity().getApplicationContext().getExternalFilesDir(null)
+	            : cordova.getActivity().getApplicationContext().getFilesDir();
+	
+	        // Create the data directory if it doesn't exist
+	        dataDirectory.mkdirs();
+	        String dataPath = dataDirectory.getAbsolutePath();
+	        File file;
+	        do {
+	            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
+	            i++;
+	        } while (file.exists());
+	
+	        return file;
+    	}
 
 	private static boolean isImage(String filePath) {
 		filePath = filePath.toLowerCase();
