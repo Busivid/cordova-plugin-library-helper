@@ -27,7 +27,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.os.Environment
+import android.os.Environment;
 
 /**
  * Original Code pulled and altered from
