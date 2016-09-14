@@ -154,7 +154,11 @@ public class LibraryHelper extends CordovaPlugin {
 			if(time == null || !hasVideo.equals("yes"))
 				return Long.parseLong("0");
 		
-			return Long.parseLong(time)/1000;
+			double duration = Double.parseDouble(time)/1000;
+			if(duration < 1 && duration > 0)
+				duration = 1;
+
+			return Math.round(duration);
 		} catch (Exception e) {
 			return Long.parseLong("0");
 		}
