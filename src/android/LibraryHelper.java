@@ -287,13 +287,14 @@ public class LibraryHelper extends CordovaPlugin {
 		}
 	}
 
-	private File getWritableFile(String ext)
-	{
-	    	int i = 1;
-	        String state = Environment.getExternalStorageState();
-	        File dataDirectory = Environment.MEDIA_MOUNTED.equals(state)
-	            ? cordova.getActivity().getApplicationContext().getExternalFilesDir(null)
-	            : cordova.getActivity().getApplicationContext().getFilesDir();
+	private File getWritableFile(String ext) {
+	        int i = 1;
+	        File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
+	
+	         //hack for galaxy camera 2.
+	         if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
+	             dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
+	         }
 	
 	        // Create the data directory if it doesn't exist
 	        dataDirectory.mkdirs();
@@ -302,10 +303,9 @@ public class LibraryHelper extends CordovaPlugin {
 	        do {
 	            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
 	            i++;
-	        } while (file.exists());
-	
-	        return file;
-    	}
+		} while (file.exists());
+		return file;
+	}
 
 	private static boolean isImage(String filePath) {
 		filePath = filePath.toLowerCase();
