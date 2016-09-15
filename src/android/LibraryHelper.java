@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.os.Environment;
+import android.os.Build;
 
 /**
  * Original Code pulled and altered from
