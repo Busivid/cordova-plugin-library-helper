@@ -138,6 +138,23 @@
     // Get Duration
     Float64 duration = CMTimeGetSeconds(srcAsset.duration);
     
+    // Get Resolution
+    AVAssetTrack *videoTrack = nil;
+    NSArray *videoTracks = [srcAsset tracksWithMediaType:AVMediaTypeVideo];
+    videoTrack = [videoTracks objectAtIndex:0];
+
+    CGSize trackDimensions = {
+        .width = 0.0,
+        .height = 0.0,
+    };
+    trackDimensions = [videoTrack naturalSize];
+    
+    NSNumber *width = [NSNumber numberWithInt:trackDimensions.width];
+    NSNumber *height = [NSNumber numberWithInt:trackDimensions.height];
+    
+    // GET FPS
+    NSNumber *frameRate = [NSNumber numberWithFloat:[videoTrack nominalFrameRate]];
+    
     // Get Filesize
     NSNumber *fileSize = nil;
     [srcVideoUrl getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
@@ -171,9 +188,12 @@
     
     NSDictionary *results = @{
         @"duration" : [NSNumber numberWithLong: ceil(duration)],
+        @"height": height,
         @"fileSize": fileSize,
+        @"frameRate": frameRate,
         @"image": imagePath,
-        @"thumbnail" : thumbnailPath
+        @"thumbnail" : thumbnailPath,
+        @"width": width
     };
     
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
