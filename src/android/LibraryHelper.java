@@ -5,12 +5,10 @@ package com.coryjthompson.libraryhelper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.UUID;
+import java.util.Iterator;
 
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +25,6 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.os.Environment;
 import android.os.Build;
 
 /**
@@ -81,7 +78,12 @@ public class LibraryHelper extends CordovaPlugin {
                                 }
 
 				JSONObject results = new JSONObject();
-				results.put("duration", getVideoDurationInSeconds(filePath));
+				JSONObject videoInfo = getVideoInfo(filePath);
+				for (Iterator<String> i = videoInfo.keys(); i.hasNext(); ) {
+					String item = i.next();
+					results.put(item, videoInfo.get(item));
+				}
+
 				results.put("thumbnail", getThumbnailPath(filePath));
 				results.put("rotation", getExifRotation(filePath));
 				callbackContext.success(results);
@@ -142,27 +144,37 @@ public class LibraryHelper extends CordovaPlugin {
 		return true;
 	}
 
-	private long getVideoDurationInSeconds(String filePath) {
+	private JSONObject getVideoInfo(String filePath) {
 		Context context = this.cordova.getActivity().getApplicationContext();
 		File file = new File(filePath);
 
+		JSONObject videoInfo = new JSONObject();
 		try {
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 			retriever.setDataSource(context, Uri.fromFile(file));
-			String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+
+			boolean hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO).equals("yes");
 			String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 
-			if(time == null || !hasVideo.equals("yes"))
-				return Long.parseLong("0");
-		
-			double duration = Double.parseDouble(time)/1000;
-			if(duration < 1 && duration > 0)
-				duration = 1;
+			long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+			long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
 
-			return Math.round(duration);
+			double duration = Double.parseDouble(time)/1000;
+			if (time == null || !hasVideo) {
+				videoInfo.put("duration", 0);
+			} else if (duration < 1 && duration > 0) {
+				videoInfo.put("duration", 1);
+			} else {
+				videoInfo.put("duration", Math.round(duration));
+			}
+
+			videoInfo.put("height", height);
+			videoInfo.put("width", width);
+
 		} catch (Exception e) {
-			return Long.parseLong("0");
 		}
+
+		return videoInfo;
 	}
 
 	private String getThumbnailPath(String filePath) {
