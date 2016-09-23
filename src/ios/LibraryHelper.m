@@ -140,20 +140,6 @@
     
     // Get Resolution
     AVAssetTrack *videoTrack = nil;
-    NSArray *videoTracks = [srcAsset tracksWithMediaType:AVMediaTypeVideo];
-    videoTrack = [videoTracks objectAtIndex:0];
-
-    CGSize trackDimensions = {
-        .width = 0.0,
-        .height = 0.0,
-    };
-    trackDimensions = [videoTrack naturalSize];
-    
-    NSNumber *width = [NSNumber numberWithInt:trackDimensions.width];
-    NSNumber *height = [NSNumber numberWithInt:trackDimensions.height];
-    
-    // GET FPS
-    NSNumber *frameRate = [NSNumber numberWithFloat:[videoTrack nominalFrameRate]];
     
     // Get Filesize
     NSNumber *fileSize = nil;
@@ -179,6 +165,30 @@
         // Optionally Save Image
         imagePath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@".jpg"];
         [UIImageJPEGRepresentation(image, 0.96f) writeToFile:imagePath atomically:YES];
+    }
+    
+    NSNumber *frameRate = [NSNumber numberWithInt:0]; //overwritten if video
+    NSNumber *height;
+    NSNumber *width;
+    
+    NSArray *videoTracks = [srcAsset tracksWithMediaType:AVMediaTypeVideo];
+    if ([videoTracks count] > 0) {
+        videoTrack = [videoTracks objectAtIndex:0];
+        
+        CGSize trackDimensions = {
+            .width = 0.0,
+            .height = 0.0,
+        };
+        trackDimensions = [videoTrack naturalSize];
+        
+        height = [NSNumber numberWithInt:trackDimensions.height];
+        width = [NSNumber numberWithInt:trackDimensions.width];
+        
+        // GET FPS
+        frameRate = [NSNumber numberWithFloat:[videoTrack nominalFrameRate]];
+    } else {
+        height = [NSNumber numberWithInt:image.size.height];
+        width = [NSNumber numberWithInt:image.size.width];
     }
     
     // Generate Thumbnail
