@@ -30,7 +30,7 @@ import android.os.Build;
 /**
  * Original Code pulled and altered from
  * https://github.com/philipp-at-greenqloud/pluginRefreshMedia
- * 
+ *
  * @author Philipp Veit (for GreenQloud.com)
  */
 public class LibraryHelper extends CordovaPlugin {
@@ -38,7 +38,7 @@ public class LibraryHelper extends CordovaPlugin {
 
 	/**
 	 * Executes the request and returns PluginResult.
-	 * 
+	 *
 	 * @param action
 	 *            The action to execute.
 	 * @param args
@@ -72,10 +72,10 @@ public class LibraryHelper extends CordovaPlugin {
 
 			if(action.equals("getVideoInfo")) {
 				String filePath = checkFilePath(args.getString(0));
-                                if (filePath.equals("")) {
-                                        callbackContext.error("Error: filePath is empty");
-                                        return true; //even though results failed, the action was valid.
-                                }
+				if (filePath.equals("")) {
+					callbackContext.error("Error: filePath is empty");
+					return true; //even though results failed, the action was valid.
+				}
 
 				JSONObject results = new JSONObject();
 				JSONObject videoInfo = getVideoInfo(filePath);
@@ -149,28 +149,39 @@ public class LibraryHelper extends CordovaPlugin {
 		File file = new File(filePath);
 
 		JSONObject videoInfo = new JSONObject();
+
 		try {
-			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-			retriever.setDataSource(context, Uri.fromFile(file));
-
-			boolean hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO).equals("yes");
-			String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-
-			long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-			long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-
-			double duration = Double.parseDouble(time)/1000;
-			if (time == null || !hasVideo) {
+			if (isImage(filePath)) {
 				videoInfo.put("duration", 0);
-			} else if (duration < 1 && duration > 0) {
-				videoInfo.put("duration", 1);
+
+				BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+				bitmapOptions.inJustDecodeBounds = true;
+				BitmapFactory.decodeFile(filePath, bitmapOptions);
+
+				videoInfo.put("height", bitmapOptions.outHeight);
+				videoInfo.put("width", bitmapOptions.outWidth);
 			} else {
-				videoInfo.put("duration", Math.round(duration));
+				MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+				retriever.setDataSource(context, Uri.fromFile(file));
+
+				boolean hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO).equals("yes");
+				String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
+				long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+				long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+
+				double duration = Double.parseDouble(time) / 1000;
+				if (time == null || !hasVideo) {
+					videoInfo.put("duration", 0);
+				} else if (duration < 1 && duration > 0) {
+					videoInfo.put("duration", 1);
+				} else {
+					videoInfo.put("duration", Math.round(duration));
+				}
+
+				videoInfo.put("height", height);
+				videoInfo.put("width", width);
 			}
-
-			videoInfo.put("height", height);
-			videoInfo.put("width", width);
-
 		} catch (Exception e) {
 		}
 
@@ -252,16 +263,16 @@ public class LibraryHelper extends CordovaPlugin {
 		int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 		int rotate = 0;
 		switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                rotate = 270;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                rotate = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                rotate = 90;
-                break;
-        }
+			case ExifInterface.ORIENTATION_ROTATE_270:
+				rotate = 270;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_180:
+				rotate = 180;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_90:
+				rotate = 90;
+				break;
+		}
 		return rotate;
 	}
 
@@ -301,21 +312,21 @@ public class LibraryHelper extends CordovaPlugin {
 	}
 
 	private File getWritableFile(String ext) {
-	        int i = 1;
-	        File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
-	
-	         //hack for galaxy camera 2.
-	         if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
-	             dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
-	         }
-	
-	        // Create the data directory if it doesn't exist
-	        dataDirectory.mkdirs();
-	        String dataPath = dataDirectory.getAbsolutePath();
-	        File file;
-	        do {
-	            file = new File(dataPath + String.format("/capture_%05d." + ext, i));
-	            i++;
+		int i = 1;
+		File dataDirectory = cordova.getActivity().getApplicationContext().getFilesDir();
+
+		//hack for galaxy camera 2.
+		if (Build.MODEL.equals("EK-GC200") && Build.MANUFACTURER.equals("samsung") && new File("/storage/extSdCard/").canRead()) {
+			dataDirectory = new File("/storage/extSdCard/.com.buzzcard.brandingtool/");
+		}
+
+		// Create the data directory if it doesn't exist
+		dataDirectory.mkdirs();
+		String dataPath = dataDirectory.getAbsolutePath();
+		File file;
+		do {
+			file = new File(dataPath + String.format("/capture_%05d." + ext, i));
+			i++;
 		} while (file.exists());
 		return file;
 	}
