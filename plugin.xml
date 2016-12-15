@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-        id="cordova-library-helper" version="1.0.3">
+        id="cordova-library-helper" version="1.0.4">
     <name>Library Helper</name>
     <description>Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android</description>
     <license>MIT</license>
@@ -21,6 +21,10 @@
         <source-file src="src/ios/LibraryHelper.m" />
         <header-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.h" />
         <source-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.m" />
+    	<preference name="PHOTO_LIBRARY_USAGE_DESCRIPTION" default="Save media to your Camera Roll" />
+	<config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
+        	<string>$PHOTO_LIBRARY_USAGE_DESCRIPTION</string>
+	</config-file>
     </platform>
     <platform name="android">
         <config-file target="config.xml" parent="/*">
