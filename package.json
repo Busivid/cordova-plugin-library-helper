@@ -1,6 +1,6 @@
 {
   "name": "cordova-library-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android",
   "cordova": {
     "id": "cordova-library-helper",
