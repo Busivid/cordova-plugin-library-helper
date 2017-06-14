@@ -1,18 +1,13 @@
 {
-  "name": "cordova-library-helper",
-  "version": "1.0.4",
-  "description": "Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android",
+  "author": "Busivid Team",
   "cordova": {
-    "id": "cordova-library-helper",
+    "id": "cordova-plugin-library-helper",
     "platforms": [
       "android",
       "ios"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/busivid/cordova-library-helper"
-  },
+  "description": "Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android",  
   "keywords": [
     "cordova",
     "ecosystem:cordova",
@@ -20,6 +15,11 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "author": "Cory Thompson",
-  "license": "MIT"
+  "license": "MIT",
+  "name": "cordova-plugin-library-helper",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/busivid/cordova-plugin-library-helper"
+  },
+  "version": "1.0.4"
 }
