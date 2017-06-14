@@ -29,9 +29,9 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="LibraryHelper">
-                <param name="android-package" value="com.coryjthompson.libraryhelper.LibraryHelper"/>
+                <param name="android-package" value="com.busivid.cordova.libraryhelper.LibraryHelper"/>
             </feature>
         </config-file>
-        <source-file src="src/android/LibraryHelper.java" target-dir="src/com.coryjthompson.libraryhelper/" />
+        <source-file src="src/android/LibraryHelper.java" target-dir="src/com.busivid.cordova.libraryhelper/" />
     </platform>
 </plugin>
