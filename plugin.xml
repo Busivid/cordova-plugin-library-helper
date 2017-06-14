@@ -2,36 +2,36 @@
 <plugin id="cordova-plugin-library-helper" version="1.0.4" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 	<author>Busivid Team</author>
 	<description>Library Helper is a cordova plugin to help insert videos or images into the native gallery. Supports IOS and Android</description>
-    <engines>
+	<engines>
 		<engine name="cordova" version=">=3.0.0" />
 	</engines>
 	<js-module name="LibraryHelper" src="www/LibraryHelper.js">
-        <clobbers target="LibraryHelper" />
-    </js-module>
+		<clobbers target="LibraryHelper" />
+	</js-module>
 	<keywords>cordova, gallery, video, image</keywords>
 	<license>MIT</license>
-    <name>cordova-plugin-library-helper</name>
+	<name>cordova-plugin-library-helper</name>
 	<platform name="android">
-        <config-file parent="/*" target="config.xml">
-            <feature name="LibraryHelper">
-                <param name="android-package" value="com.busivid.cordova.libraryhelper.LibraryHelper"/>
-            </feature>
-        </config-file>
-        <source-file src="src/android/LibraryHelper.java" target-dir="src/com/busivid/cordova/libraryhelper" />
-    </platform>
+		<config-file parent="/*" target="config.xml">
+			<feature name="LibraryHelper">
+				<param name="android-package" value="com.busivid.cordova.libraryhelper.LibraryHelper"/>
+			</feature>
+		</config-file>
+		<source-file src="src/android/LibraryHelper.java" target-dir="src/com/busivid/cordova/libraryhelper" />
+	</platform>
 	<platform name="ios">
-        <config-file parent="/*" target="config.xml">
-            <feature name="LibraryHelper">
-                <param name="ios-package" value="LibraryHelper"/>
-            </feature>
-        </config-file>
-        <config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
-        	<string>$PHOTO_LIBRARY_USAGE_DESCRIPTION</string>
+		<config-file parent="/*" target="config.xml">
+			<feature name="LibraryHelper">
+				<param name="ios-package" value="LibraryHelper"/>
+			</feature>
+		</config-file>
+		<config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
+			<string>$PHOTO_LIBRARY_USAGE_DESCRIPTION</string>
 		</config-file>
 		<header-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.h" />
 		<header-file src="src/ios/LibraryHelper.h" />
-        <preference name="PHOTO_LIBRARY_USAGE_DESCRIPTION" default="Save media to your Camera Roll" />
+		<preference name="PHOTO_LIBRARY_USAGE_DESCRIPTION" default="Save media to your Camera Roll" />
 		<source-file src="src/ios/ALAssetsLibrary+CustomPhotoAlbum.m" />
-		<source-file src="src/ios/LibraryHelper.m" />		
-    </platform>
+		<source-file src="src/ios/LibraryHelper.m" />
+	</platform>
 </plugin>
