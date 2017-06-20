@@ -1,6 +1,5 @@
 // LibraryHelper-cordova
-// http://github.com/coryjthompson/LibraryHelper-cordova
-package com.coryjthompson.libraryhelper;
+package com.busivid.cordova.libraryhelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +41,7 @@ public class LibraryHelper extends CordovaPlugin {
 	 * @param action
 	 *            The action to execute.
 	 * @param args
-	 *            JSONArry of arguments for the plugin.
+	 *            JSONArray of arguments for the plugin.
 	 * @param callbackId
 	 *            The callback id used when calling back into JavaScript.
 	 * @return A  object with a status and message.
