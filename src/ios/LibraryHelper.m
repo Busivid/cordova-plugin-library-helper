@@ -198,9 +198,9 @@
     
     NSDictionary *results = @{
         @"duration" : [NSNumber numberWithLong: ceil(duration)],
-        @"height": height,
         @"fileSize": fileSize,
         @"frameRate": frameRate,
+        @"height": height,
         @"image": imagePath,
         @"thumbnail" : thumbnailPath,
         @"width": width
