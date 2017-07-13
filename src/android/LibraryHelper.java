@@ -76,15 +76,7 @@ public class LibraryHelper extends CordovaPlugin {
 					return true; //even though results failed, the action was valid.
 				}
 
-				JSONObject results = new JSONObject();
-				JSONObject videoInfo = getVideoInfo(filePath);
-				for (Iterator<String> i = videoInfo.keys(); i.hasNext(); ) {
-					String item = i.next();
-					results.put(item, videoInfo.get(item));
-				}
-
-				results.put("thumbnail", getThumbnailPath(filePath));
-				results.put("rotation", getExifRotation(filePath));
+				JSONObject results = getVideoInfo(filePath);
 				callbackContext.success(results);
 				return true;
 			}
@@ -147,41 +139,49 @@ public class LibraryHelper extends CordovaPlugin {
 		Context context = this.cordova.getActivity().getApplicationContext();
 		File file = new File(filePath);
 
-		JSONObject videoInfo = new JSONObject();
+		double duration = 0;
+		long fileSize = file.length();
+		float frameRate = 0;
+		int height = 0;
+		int width = 0;
 
 		try {
 			if (isImage(filePath)) {
-				videoInfo.put("duration", 0);
-
 				BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
 				bitmapOptions.inJustDecodeBounds = true;
 				BitmapFactory.decodeFile(filePath, bitmapOptions);
-
-				videoInfo.put("height", bitmapOptions.outHeight);
-				videoInfo.put("width", bitmapOptions.outWidth);
+				height = bitmapOptions.outHeight;
+				width = bitmapOptions.outWidth;
 			} else {
 				MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 				retriever.setDataSource(context, Uri.fromFile(file));
 
 				boolean hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO).equals("yes");
 				String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+				if (time != null && hasVideo)
+					duration = Math.ceil(Double.parseDouble(time) / 1000);
 
-				long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-				long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+				height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+				width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
 
-				double duration = Double.parseDouble(time) / 1000;
-				if (time == null || !hasVideo) {
-					videoInfo.put("duration", 0);
-				} else if (duration < 1 && duration > 0) {
-					videoInfo.put("duration", 1);
-				} else {
-					videoInfo.put("duration", Math.round(duration));
-				}
-
-				videoInfo.put("height", height);
-				videoInfo.put("width", width);
+				if (android.os.Build.VERSION.SDK_INT >= 23)
+					frameRate = Float.parseFloat(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE));
 			}
 		} catch (Exception e) {
+		}
+
+		JSONObject videoInfo = new JSONObject();
+		try {
+			videoInfo.put("duration", duration);
+			videoInfo.put("fileSize", fileSize);
+			videoInfo.put("frameRate", frameRate);
+			videoInfo.put("height", height);
+			// videoInfo.put("image", ); // frame size jpg
+			videoInfo.put("rotation", getExifRotation(filePath));
+			videoInfo.put("thumbnail", getThumbnailPath(filePath));
+			videoInfo.put("width", width);
+		} catch (Exception e) {
+			// Do Nothing
 		}
 
 		return videoInfo;
