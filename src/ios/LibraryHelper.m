@@ -202,7 +202,7 @@
         @"frameRate": frameRate,
         @"height": height,
         @"image": imagePath,
-        @"rotation": 0,
+        @"rotation": @0,
         @"thumbnail": thumbnailPath,
         @"width": width
     };
