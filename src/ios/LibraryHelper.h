@@ -1,12 +1,10 @@
-//	LibraryHelper-cordova	
+//	LibraryHelper-cordova
 //	http://github.com/coryjthompson/LibraryHelper-cordova
 //
-
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <Cordova/CDVPlugin.h>
-
 
 @interface LibraryHelper : CDVPlugin
 - (void)compressImage:(CDVInvokedUrlCommand *)command;
