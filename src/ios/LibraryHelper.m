@@ -71,17 +71,27 @@
 
 - (void)compressImage:(CDVInvokedUrlCommand *)command {
     NSString* path = [command.arguments objectAtIndex: 0];
-    int jpegCompression = ([command.arguments objectAtIndex:1]) ? [[command.arguments objectAtIndex:1] intValue] : 60;
+    int jpegCompression = ([command.arguments objectAtIndex:1])
+        ? [[command.arguments objectAtIndex:1] intValue]
+        : 60;
 
-    // Get App Document path
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-    NSString *appDocumentPath = [paths objectAtIndex:0];
+    NSString *outputImagePath = @""; // nil is not permitted in NSDictionary;
+    NSString *lowerPath = [path lowercaseString];
+    if ([lowerPath hasSuffix:@".bmp"] || [lowerPath hasSuffix:@".jpg"])
+    {
+        // Determine outputImagePath
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+        NSString *appDocumentPath = [paths objectAtIndex:0];
+        NSString *tmpFileName = [[NSProcessInfo processInfo] globallyUniqueString];
+        outputImagePath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@".jpg"];
 
-    NSString *tmpFileName = [[NSProcessInfo processInfo] globallyUniqueString];
-    NSString *outputImagePath = [[appDocumentPath stringByAppendingPathComponent:tmpFileName] stringByAppendingString:@".jpg"];
+        // Load the Image
+        UIImage *image = [[UIImage alloc]initWithContentsOfFile:path];
 
-    UIImage *image = [[UIImage alloc]initWithContentsOfFile:path];
-    [UIImageJPEGRepresentation(image, (float)jpegCompression/100.0f) writeToFile:outputImagePath atomically:YES];
+        // Compress the image
+        [UIImageJPEGRepresentation(image, (float)jpegCompression/100.0f) writeToFile:outputImagePath atomically:YES];
+    }
+
     NSDictionary *results = @{
         @"compressedImage" : outputImagePath
     };
